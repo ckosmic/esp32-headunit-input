@@ -16,15 +16,15 @@ Button buttonNext(36, "BTN_NEXT");
 
 int auxDetectState = 0;
 
-const uint8_t BTN_VOL_UP = 0;
-const uint8_t BTN_VOL_DOWN = 1;
-const uint8_t BTN_SEEK_NEXT = 2;
-const uint8_t BTN_SEEK_PREV = 3;
-const uint8_t BTN_MODE = 4;
-const uint8_t BTN_MUTE = 5;
-const uint8_t BTN_SPEAK = 6;
-const uint8_t BTN_ANSWER = 7;
-const uint8_t BTN_DENY = 8;
+const uint8_t BTN_VOL_UP = 1;
+const uint8_t BTN_VOL_DOWN = 2;
+const uint8_t BTN_SEEK_NEXT = 3;
+const uint8_t BTN_SEEK_PREV = 4;
+const uint8_t BTN_MODE = 5;
+const uint8_t BTN_MUTE = 6;
+const uint8_t BTN_SPEAK = 7;
+const uint8_t BTN_ANSWER = 8;
+const uint8_t BTN_DENY = 9;
 
 ResistorLadderButtons swc(1, 50, 600, 0, 10, 50);
 
@@ -159,8 +159,8 @@ void setup() {
   swc.begin();
   swc.addButton(BTN_VOL_UP, 1920, 2048, nullptr, nullptr, send_swc_button_up);
   swc.addButton(BTN_VOL_DOWN, 2250, 2300, nullptr, nullptr, send_swc_button_up);
-  swc.addButton(BTN_SEEK_NEXT, 400, 650, nullptr, nullptr, send_swc_button_up);
-  swc.addButton(BTN_SEEK_PREV, 750, 850, nullptr, nullptr, send_swc_button_up);
+  swc.addButton(BTN_SEEK_NEXT, 400, 600, nullptr, nullptr, send_swc_button_up);
+  swc.addButton(BTN_SEEK_PREV, 775, 850, nullptr, nullptr, send_swc_button_up);
   swc.addButton(BTN_MODE, 1125, 1175, nullptr, nullptr, send_swc_button_up);
   swc.addButton(BTN_MUTE, 1490, 1500, nullptr, nullptr, send_swc_button_up);
   swc.addButton(BTN_SPEAK, 2650, 2660, nullptr, nullptr, send_swc_button_up);
@@ -171,7 +171,7 @@ void setup() {
   buttonNext.onAction(buttonHandler);
   //buttonInp.onAction(buttonHandler);
 
-  pinMode(41, INPUT_PULLDOWN);
+  pinMode(2, INPUT_PULLUP);
   //pinMode(LED_BUILTIN, OUTPUT);
 
   delay(1000);
@@ -191,10 +191,12 @@ void loop() {
     //buttonInp.update();
 
     static int prevAuxDetectState = 0;
-    auxDetectState = digitalRead(41);
+    auxDetectState = digitalRead(2);
 
     if (auxDetectState != prevAuxDetectState) {
       send_aux_detect_state();
+      Serial.print("AUX state: ");
+      Serial.println(auxDetectState);
       prevAuxDetectState = auxDetectState;
     }
     
