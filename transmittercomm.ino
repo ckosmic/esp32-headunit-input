@@ -188,12 +188,51 @@ void setup() {
   Serial.println("Ready");
 }
 
+#define CMD_BUFFER_SIZE 128
+char cmdBuffer[CMD_BUFFER_SIZE];
+uint8_t cmdIndex = 0;
+
+void handle_command(char* line) {
+  char* command = strtok(line, " ");
+  char* args = strtok(NULL, "");
+
+  if (!command) return;
+
+  if (strcmp(command, "input") == 0) {
+    JsonDocument doc;
+    doc["command"] = "comm_aux_detect";
+    doc["value"] = atoi(args);
+    send_json(doc);
+  } else {
+    Serial.println("Unknown command");
+  }
+}
+
+void process_serial() {
+  while (Serial.available()) {
+    char c = Serial.read();
+
+    if (c == '\n' || c == '\r') {
+      if (cmdIndex > 0) {
+        cmdBuffer[cmdIndex] = '\0';
+        handle_command(cmdBuffer);
+        cmdIndex = 0;
+      }
+    } else {
+      if (cmdIndex < CMD_BUFFER_SIZE - 1) {
+        cmdBuffer[cmdIndex++] = c;
+      }
+    }
+  }
+}
+
 unsigned long lastUpdate = 0;
 float loopFrequency = 1000.0f/60.0f;
 
 void loop() {
   receive_json();
   swc.update();
+  process_serial();
 
   if (lastUpdate < millis()) {
     buttonPrev.update();
