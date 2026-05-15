@@ -15,6 +15,7 @@ Button buttonPrev(48, "BTN_PREV");
 Button buttonNext(36, "BTN_NEXT");
 
 int auxDetectState = 0;
+int illuminationState = 0;
 
 const uint8_t BTN_VOL_UP = 1;
 const uint8_t BTN_VOL_DOWN = 2;
@@ -45,6 +46,13 @@ void send_aux_detect_state() {
   JsonDocument doc;
   doc["command"] = "comm_aux_detect";
   doc["value"] = auxDetectState;
+  send_json(doc);
+}
+
+void send_illumination_state() {
+  JsonDocument doc;
+  doc["command"] = "comm_illumination";
+  doc["value"] = illuminationState;
   send_json(doc);
 }
 
@@ -174,6 +182,8 @@ void setup() {
   pinMode(2, INPUT_PULLUP);
   //pinMode(LED_BUILTIN, OUTPUT);
 
+  pinMode(10, INPUT_PULLDOWN);
+
   delay(1000);
   Serial.println("Ready");
 }
@@ -198,6 +208,15 @@ void loop() {
       Serial.print("AUX state: ");
       Serial.println(auxDetectState);
       prevAuxDetectState = auxDetectState;
+    }
+
+    static int prevIlluminationState = 0;
+    illuminationState = digitalRead(10);
+    if (illuminationState != prevIlluminationState) {
+      send_illumination_state();
+      Serial.print("Illumination state: ");
+      Serial.println(illuminationState);
+      prevIlluminationState = illuminationState;
     }
     
     lastUpdate = millis() + loopFrequency;
